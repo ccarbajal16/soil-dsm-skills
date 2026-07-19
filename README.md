@@ -44,14 +44,32 @@ The **source of truth is the Obsidian wiki** (`Soil_skill/skills-forge/<name>/SK
 2. **flattens** every `[[target|alias]]` → `alias` and `[[a/b/c]]` → `c`, leaving clean readable text,
 3. writes a **self-contained** `SKILL.md` into `plugins/dsm-soil/skills/<name>/`.
 
-Re-run after editing skills in the vault:
+So: **edit in the vault → build → commit → push.** The vault keeps the full linked knowledge base; this repo ships the portable, standalone skills. Nothing updates automatically — adding papers to the vault changes the skills only when you deliberately re-forge them and release.
+
+## Release in one command
+
+`release.ps1` does the whole publish flow: rebuild from the vault → bump the plugin version → commit → push.
 
 ```
-powershell -ExecutionPolicy Bypass -File build.ps1
+# preview only — no writes, no commit, no push:
+powershell -ExecutionPolicy Bypass -File release.ps1 -DryRun
+
+# patch release (0.1.0 -> 0.1.1):
+powershell -ExecutionPolicy Bypass -File release.ps1 -Message "add sampling papers"
+
+# minor / major / explicit version:
+powershell -ExecutionPolicy Bypass -File release.ps1 -Bump minor
+powershell -ExecutionPolicy Bypass -File release.ps1 -Version 1.0.0
+```
+
+It skips cleanly if nothing changed since the last release. After it pushes, upgrade any installed copies from the `/plugin` menu.
+
+**Manual alternative** (or from Git Bash / macOS / Linux, which has `build.sh` instead of `build.ps1`):
+
+```
+powershell -ExecutionPolicy Bypass -File build.ps1     # or: bash build.sh
 git add -A && git commit -m "rebuild skills" && git push
 ```
-
-So: **edit in the vault → `build.ps1` → commit → push.** The vault keeps the full linked knowledge base; this repo ships the portable, standalone skills.
 
 ## Layout
 
@@ -61,7 +79,8 @@ soil-dsm-skills/
 ├── plugins/dsm-soil/
 │   ├── .claude-plugin/plugin.json      # plugin manifest
 │   └── skills/<name>/SKILL.md          # the 9 self-contained skills (built)
-├── build.ps1                           # compile skills from the vault
+├── build.ps1 / build.sh                # compile skills from the vault (Windows / Unix)
+├── release.ps1                         # one-command: build + version bump + commit + push
 ├── install.ps1 / install.sh            # manual install fallback
 └── README.md
 ```
