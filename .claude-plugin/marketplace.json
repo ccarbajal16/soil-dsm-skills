@@ -1,0 +1,13 @@
+{
+  "name": "soil-dsm-skills",
+  "owner": {
+    "name": "Carbajal"
+  },
+  "plugins": [
+    {
+      "name": "dsm-soil",
+      "source": "./plugins/dsm-soil",
+      "description": "9 digital-soil-mapping skills forged from the DSM knowledge wiki: fertility mapping, prediction uncertainty (AOA/LPD/Monte-Carlo), sampling design, ML for soil, end-to-end DSM workflow, map validation, RothC temporal modelling, hybrid process+ML SOC, and SOC-stock MRV."
+    }
+  ]
+}

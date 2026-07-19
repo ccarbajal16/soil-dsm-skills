@@ -1,0 +1,4 @@
+# The compiled skills under plugins/dsm-soil/skills/ ARE the distributable — keep them tracked.
+.DS_Store
+Thumbs.db
+*.tmp
