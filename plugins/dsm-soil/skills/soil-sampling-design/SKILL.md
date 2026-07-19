@@ -8,7 +8,8 @@ description: >-
   planning a sampling campaign, sizing a sample, assessing/supplementing legacy points, or
   choosing between cLHS and its alternatives. Triggers: "sampling design", "how many samples",
   "where to sample", "cLHS", "sample size", "representative samples", "reference area",
-  "supplemental sampling", "sampling for soil mapping", "legacy soil data reuse".
+  "supplemental sampling", "sampling for soil mapping", "legacy soil data reuse",
+  "sample density".
 ---
 
 # Soil Sampling Design
