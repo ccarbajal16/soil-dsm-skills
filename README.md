@@ -37,14 +37,21 @@ flowchart TD
 
 ## The skills (9)
 
+**🗺️ Operational DSM** — end-to-end mapping, from sampling to a finished map with uncertainty:
+
 | Skill | What it does |
 |---|---|
-| `soil-fertility-mapping` | Multi-property fertility maps → Soil Fertility Index with two-axis uncertainty |
-| `spatial-prediction-uncertainty` | Per-pixel intervals + area-of-applicability (AOA/LPD/DI) via CAST; Monte-Carlo to class |
+| `digital-soil-mapping-workflow` | End-to-end DSM project workflow (scorpan → sampling → model → mapped uncertainty) |
 | `soil-sampling-design` | Choose a sampling design by objective (cLHS-family, DL, Reference Area, heterogeneity-adaptive, cost, space-time) |
 | `ml-for-soil-prediction` | Choose/tune/validate ML for soil (no universal winner; feature engineering; interpretability) |
-| `digital-soil-mapping-workflow` | End-to-end DSM project workflow (scorpan → sampling → model → mapped uncertainty) |
 | `soil-map-validation` | CV strategy, accuracy metrics, honest uncertainty, aggregation |
+| `spatial-prediction-uncertainty` | Per-pixel intervals + area-of-applicability (AOA/LPD/DI) via CAST; Monte-Carlo to class |
+| `soil-fertility-mapping` | Multi-property fertility maps → Soil Fertility Index with two-axis uncertainty |
+
+**🌱 Carbon / SOC** — soil-organic-carbon over time, and carbon accounting:
+
+| Skill | What it does |
+|---|---|
 | `rothc-temporal-modelling` | Set up / calibrate / validate RothC over time |
 | `hybrid-process-ml-soc` | Fuse RothC + ML for space-time SOC (POML) |
 | `soc-stock-mrv` | SOC-stock MRV & carbon crediting |
@@ -67,7 +74,14 @@ Copies the skills into your personal `~/.claude/skills/` folder (global on this 
 - Windows (PowerShell): `powershell -ExecutionPolicy Bypass -File install.ps1`
 - Git Bash / macOS / Linux: `bash install.sh`
 
-## How the skills are built (self-contained)
+## Building & releasing
+
+The skills are **compiled from an Obsidian knowledge wiki** (the source of truth) into the self-contained files in this repo. Everything below is only for the **author who rebuilds** them — if you're just using the plugin, you can stop here.
+
+<details>
+<summary><b>How the skills are built, configured, and released</b></summary>
+
+### How the skills are built (self-contained)
 
 The **source of truth is the Obsidian wiki** (`Soil_skill/skills-forge/<name>/SKILL.md`), where each skill is richly cross-linked with `[[wiki links]]` to concept/method/source pages. Those links don't resolve outside the vault, so `build.ps1`:
 
@@ -96,7 +110,7 @@ export DSM_VAULT="/d/path/to/your-vault/skills-forge"
 
 (Only the skill author needs this — it's for **rebuilding**. People who just install the plugin never touch the vault.)
 
-## Release in one command
+### Release in one command
 
 `release.ps1` does the whole publish flow: rebuild from the vault → bump the plugin version → commit → push.
 
@@ -121,7 +135,7 @@ powershell -ExecutionPolicy Bypass -File build.ps1     # or: bash build.sh
 git add -A && git commit -m "rebuild skills" && git push
 ```
 
-## Layout
+### Repo layout
 
 ```
 soil-dsm-skills/
@@ -132,5 +146,8 @@ soil-dsm-skills/
 ├── build.ps1 / build.sh                # compile skills from the vault (Windows / Unix)
 ├── release.ps1                         # one-command: build + version bump + commit + push
 ├── install.ps1 / install.sh            # manual install fallback
+├── LICENSE                             # MIT
 └── README.md
 ```
+
+</details>
