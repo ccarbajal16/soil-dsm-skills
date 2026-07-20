@@ -5,10 +5,11 @@
 # Re-run after editing skills in the vault, then commit + push (or use release.ps1).
 set -euo pipefail
 
-# Edit this if your vault lives elsewhere (Git Bash path form):
-vault="/c/Users/USER/OneDrive/Obsidian/DSM/Soil_skill/skills-forge"
-
 here="$(cd "$(dirname "$0")" && pwd)"
+
+# Vault location (source of truth). Override with DSM_VAULT; otherwise defaults
+# to a sibling 'Soil_skill/skills-forge' next to this repo.
+vault="${DSM_VAULT:-${here}/../Soil_skill/skills-forge}"
 out="${here}/plugins/dsm-soil/skills"
 skills=(
   soil-map-validation ml-for-soil-prediction digital-soil-mapping-workflow

@@ -46,6 +46,25 @@ The **source of truth is the Obsidian wiki** (`Soil_skill/skills-forge/<name>/SK
 
 So: **edit in the vault → build → commit → push.** The vault keeps the full linked knowledge base; this repo ships the portable, standalone skills. Nothing updates automatically — adding papers to the vault changes the skills only when you deliberately re-forge them and release.
 
+### Pointing the build at your vault
+
+The build scripts look for the vault's `skills-forge/` folder, in this order:
+
+1. the **`DSM_VAULT`** environment variable, if set (absolute path to your `skills-forge` folder);
+2. otherwise, a **sibling `Soil_skill/skills-forge/`** next to this repo — i.e. the repo and the vault share a parent folder.
+
+If your vault lives elsewhere, set `DSM_VAULT` once and the scripts pick it up:
+
+```
+# Windows (PowerShell), current session:
+$env:DSM_VAULT = 'D:\path\to\your-vault\skills-forge'
+
+# Git Bash / macOS / Linux, current session:
+export DSM_VAULT="/d/path/to/your-vault/skills-forge"
+```
+
+(Only the skill author needs this — it's for **rebuilding**. People who just install the plugin never touch the vault.)
+
 ## Release in one command
 
 `release.ps1` does the whole publish flow: rebuild from the vault → bump the plugin version → commit → push.

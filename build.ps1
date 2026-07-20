@@ -13,8 +13,9 @@
 #>
 $ErrorActionPreference = 'Stop'
 
-# Edit this if your vault lives elsewhere:
-$vault = 'C:\Users\USER\OneDrive\Obsidian\DSM\Soil_skill\skills-forge'
+# Vault location (source of truth). Override with the DSM_VAULT env var; otherwise
+# defaults to a sibling 'Soil_skill/skills-forge' next to this repo.
+$vault = if ($env:DSM_VAULT) { $env:DSM_VAULT } else { Join-Path $PSScriptRoot '..\Soil_skill\skills-forge' }
 
 $out = Join-Path $PSScriptRoot 'plugins\dsm-soil\skills'
 $skills = @(
