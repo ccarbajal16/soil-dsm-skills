@@ -1,8 +1,39 @@
 # soil-dsm-skills
 
-Portable **Claude Code skills for Digital Soil Mapping**, forged from a knowledge wiki built out of the soil-science literature. Install them into any project and carry them across machines.
+[![version](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2Fccarbajal16%2Fsoil-dsm-skills%2Fmain%2Fplugins%2Fdsm-soil%2F.claude-plugin%2Fplugin.json&query=%24.version&label=version&color=blue)](./plugins/dsm-soil/.claude-plugin/plugin.json)
+[![license: MIT](https://img.shields.io/badge/license-MIT-green.svg)](./LICENSE)
+![Claude Code plugin](https://img.shields.io/badge/Claude%20Code-plugin-8A2BE2)
+![platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-lightgrey)
+
+> **Portable Claude Code skills for Digital Soil Mapping** — expert soil-mapping know-how, distilled from the literature into an installable plugin.
+
+Nine skills that give Claude Code working knowledge of **digital soil mapping**: sampling design, ML modelling, prediction uncertainty, map validation, fertility indices, and soil-organic-carbon accounting. Each is **forged from a knowledge wiki** built out of **40+ peer-reviewed papers** — so the guidance tracks the literature, not guesswork. Install once, use in any project, carry it across machines.
 
 Distributed as a **Claude Code plugin** (`dsm-soil`) via this repo, which doubles as a **plugin marketplace**.
+
+## How the skills connect
+
+From raw literature to installable skills — and how the nine relate:
+
+```mermaid
+flowchart TD
+    LIT["40+ papers<br/>soil-science literature"] --> WIKI["Obsidian knowledge wiki<br/>(source of truth)"]
+    WIKI --> DSM["digital-soil-mapping-workflow"]
+
+    subgraph OP["Operational DSM"]
+        DSM --> SAMP["soil-sampling-design"]
+        DSM --> ML["ml-for-soil-prediction"]
+        DSM --> VAL["soil-map-validation"]
+        DSM --> UNC["spatial-prediction-uncertainty"]
+        DSM --> FERT["soil-fertility-mapping"]
+    end
+
+    subgraph CARB["Carbon / SOC"]
+        ROTHC["rothc-temporal-modelling"] --> HYB["hybrid-process-ml-soc"] --> MRV["soc-stock-mrv"]
+    end
+
+    WIKI --> ROTHC
+```
 
 ## The skills (9)
 
@@ -23,11 +54,11 @@ Distributed as a **Claude Code plugin** (`dsm-soil`) via this repo, which double
 On any machine with Claude Code, add this repo as a marketplace, then install the plugin:
 
 ```
-/plugin marketplace add YOUR_GH_USER/soil-dsm-skills
+/plugin marketplace add ccarbajal16/soil-dsm-skills
 /plugin install dsm-soil
 ```
 
-(Replace `YOUR_GH_USER` with your GitHub username. For a private repo, make sure your Claude Code is authenticated to GitHub.) Update later with a `git push` here, then reinstall/upgrade from the `/plugin` menu. Uninstall cleanly from the same menu.
+(For a private repo, make sure your Claude Code is authenticated to GitHub.) Update later with a `git push` here, then reinstall/upgrade from the `/plugin` menu. Uninstall cleanly from the same menu.
 
 ## Install (fallback: no plugin system)
 
