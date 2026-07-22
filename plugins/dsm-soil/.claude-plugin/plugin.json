@@ -1,6 +1,6 @@
 {
   "name": "dsm-soil",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "description": "Digital soil mapping skills forged from the DSM knowledge wiki: fertility mapping, prediction uncertainty (AOA/LPD/MC), sampling design, ML for soil, end-to-end DSM workflow, map validation, RothC temporal modelling, hybrid process+ML SOC, and SOC-stock MRV.",
   "author": {
     "name": "Carbajal"

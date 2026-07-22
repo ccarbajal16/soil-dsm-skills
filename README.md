@@ -42,11 +42,11 @@ flowchart TD
 | Skill | What it does |
 |---|---|
 | `digital-soil-mapping-workflow` | End-to-end DSM project workflow (scorpan → sampling → model → mapped uncertainty) |
-| `soil-sampling-design` | Choose a sampling design by objective (cLHS-family, DL, Reference Area, heterogeneity-adaptive, cost, space-time) |
+| `soil-sampling-design` | Choose a sampling design by objective (cLHS-family, maxvol, DL, Reference Area, cost, space-time) + runnable R toolkits (`soilsampling`, `MLSampling`) |
 | `ml-for-soil-prediction` | Choose/tune/validate ML for soil (no universal winner; feature engineering; interpretability) |
 | `soil-map-validation` | CV strategy, accuracy metrics, honest uncertainty, aggregation |
 | `spatial-prediction-uncertainty` | Per-pixel intervals + area-of-applicability (AOA/LPD/DI) via CAST; Monte-Carlo to class |
-| `soil-fertility-mapping` | Multi-property fertility maps → Soil Fertility Index with two-axis uncertainty |
+| `soil-fertility-mapping` | Multi-property fertility maps → Soil Fertility Index with two-axis uncertainty; runnable SQI (`soilquality`: PCA-MDS, AHP, scoring) |
 
 **🌱 Carbon / SOC** — soil-organic-carbon over time, and carbon accounting:
 
@@ -55,6 +55,8 @@ flowchart TD
 | `rothc-temporal-modelling` | Set up / calibrate / validate RothC over time |
 | `hybrid-process-ml-soc` | Fuse RothC + ML for space-time SOC (POML) |
 | `soc-stock-mrv` | SOC-stock MRV & carbon crediting |
+
+> Several skills go beyond guidance to **runnable R toolkits** — the open-source [`soilsampling`](https://github.com/ccarbajal16/soilsampling), [`MLSampling`](https://github.com/ccarbajal16/MLSampling), and [`soilquality`](https://github.com/ccarbajal16/soilquality) packages — so a design or index becomes concrete, reproducible code.
 
 ## Install (recommended: plugin + marketplace)
 
