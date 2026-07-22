@@ -97,6 +97,11 @@ of three cited integration routes (soil-fertility-index):
   reduce indicators with PCA (eigenvalue ≥ 1), **score** each (more/less/optimum-is-better), **weight** by PCA
   loading, **sum** to a continuous `SFI = Σ Wᵢ·Sᵢ`. Transparent and weight-explicit. **Down-weight or exclude
   the low-confidence nutrients (N, P)** so the index doesn't inherit their uncertainty (inherent-vs-management-properties).
+  **Runnable end-to-end via soilquality** (`pca_select_mds` → `score_indicators` → `compute_sqi_properties`):
+  it adds **AHP weighting** with a consistency check (`ahp_weights`, CR<0.10 — weights on *ecological priority*, not
+  just PCA variance) and explicit **scoring functions** (`score_optimum` linear/quadratic for pH, `score_threshold`
+  for nutrient classes). Point/compensatory — use it to derive the weights/scores/MDS (and a validation SFI), then
+  apply the rule pixelwise; for a national map prefer the non-compensatory threshold route below.
 - **Unsupervised fuzzy clustering into zones** (Valera, FKCN) —
   cluster the stacked property maps (Mahalanobis distance) into fertility classes with fuzzy membership maps;
   no labels needed, pick class count by FPI.
@@ -171,7 +176,9 @@ predictability; harmonization; metric panel). National/continental companions: H
 30 m, ensemble ML, spatial CV, per-pixel error) and Vaysse & Lagacherie 2017 (foundational QRF-for-uncertainty
 vs RK under sparse data; accuracy plots). Pillar B (index) grounded in soil-fertility-index via Hounkpatin 2022 (⭐ national DSM-SFI by
 pixelwise expert-threshold classification, Benin), Supriyadi 2025 (PCA-MDS weighted-additive SFI),
-Valera 2025 (FKCN fuzzy clustering), and Abdullah 2025 (supervised ensemble classification). Reuses the DSM
+Valera 2025 (FKCN fuzzy clustering), and Abdullah 2025 (supervised ensemble classification); runnable via the
+**soilquality R package** (Carbajal — PCA-MDS + AHP weighting with consistency check +
+scoring functions → `compute_sqi_properties`). Reuses the DSM
 machinery from the wiki (scorpan, quantile-regression-forests,
 ensemble-machine-learning, feature-selection, sampling-design,
 accuracy-metrics, spatial-cross-validation, scale-dependence,
