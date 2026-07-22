@@ -1,6 +1,6 @@
 # soil-dsm-skills
 
-[![version](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2Fccarbajal16%2Fsoil-dsm-skills%2Fmain%2Fplugins%2Fdsm-soil%2F.claude-plugin%2Fplugin.json&query=%24.version&label=version&color=blue)](./plugins/dsm-soil/.claude-plugin/plugin.json)
+[![version](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2Fccarbajal16%2Fsoil-dsm-skills%2Fmain%2Fplugins%2Fdsm-soil%2F.claude-plugin%2Fplugin.json&query=%24.version&label=version&color=blue&cacheSeconds=3600)](./plugins/dsm-soil/.claude-plugin/plugin.json)
 [![license: MIT](https://img.shields.io/badge/license-MIT-green.svg)](./LICENSE)
 ![Claude Code plugin](https://img.shields.io/badge/Claude%20Code-plugin-8A2BE2)
 ![platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-lightgrey)
