@@ -78,7 +78,31 @@ On any machine with Claude Code, add this repo as a marketplace, then install th
 /plugin install dsm-soil
 ```
 
-(For a private repo, make sure your Claude Code is authenticated to GitHub.) Update later with a `git push` here, then reinstall/upgrade from the `/plugin` menu. Uninstall cleanly from the same menu.
+Then run `/reload-plugins` to activate it in the current session.
+
+## Update an installed copy
+
+You do **not** need to reinstall. Refresh the marketplace listing, then reload:
+
+```
+/plugin marketplace update soil-dsm-skills
+/reload-plugins
+```
+
+Or from the menu: `/plugin` → **Marketplaces** → select `soil-dsm-skills` → update.
+
+**Want it automatic?** Third-party marketplaces have auto-update **off** by default (only Anthropic's
+official marketplaces default to on). Turn it on once and forget it: `/plugin` → **Marketplaces** →
+select `soil-dsm-skills` → **Enable auto-update**. Claude Code then refreshes in the background shortly
+after startup and prompts you to run `/reload-plugins`.
+
+> Updates are released by version. Claude Code only offers a new version when the `version` field in
+> `plugins/dsm-soil/.claude-plugin/plugin.json` is bumped — which `release.ps1` does on every release.
+
+If skills still don't appear after updating, clear the plugin cache, restart Claude Code and reinstall:
+`rm -rf ~/.claude/plugins/cache`
+
+Uninstall cleanly from the same `/plugin` menu.
 
 ## Install (fallback: no plugin system)
 
@@ -139,7 +163,16 @@ powershell -ExecutionPolicy Bypass -File release.ps1 -Bump minor
 powershell -ExecutionPolicy Bypass -File release.ps1 -Version 1.0.0
 ```
 
-It skips cleanly if nothing changed since the last release. After it pushes, upgrade any installed copies from the `/plugin` menu.
+It skips cleanly if nothing changed since the last release. After it pushes, installed copies update
+with `/plugin marketplace update soil-dsm-skills` + `/reload-plugins` (see
+[Update an installed copy](#update-an-installed-copy)).
+
+Two things `release.ps1` does **not** do, so handle them by hand when they apply:
+
+- **Git tag / GitHub release** — add one after the push if you want the release to show up under
+  *Releases*: `git tag -a vX.Y.Z -m "..." && git push origin vX.Y.Z`
+- **`.claude-plugin/marketplace.json`** — its `description` is what users read in the `/plugin`
+  **Discover** tab. Update it when the skill roster changes; nothing bumps it automatically.
 
 **Manual alternative** (or from Git Bash / macOS / Linux, which has `build.sh` instead of `build.ps1`):
 
