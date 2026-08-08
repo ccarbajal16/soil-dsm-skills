@@ -41,9 +41,12 @@ Three consequences that govern everything below:
 
 1. **Always report the recipe, never just the value.** MDS route, scoring function, weights,
    aggregation formula, and what the limits were relative to.
-2. **SQI values from different studies are not comparable.** Most scoring is relative to the
-   study's own sample extremes, so the best site scores ≈1.0 by construction. Theresa's 0.99
-   and Huera-Lucero's 0.40 describe different worlds. Never place them in the same table.
+2. **SQI values from different studies are not comparable** — with one documented exception.
+   Most scoring is relative to the study's own sample extremes, so the best site scores ≈1.0
+   by construction. Theresa's 0.99 and Huera-Lucero's 0.40 describe different worlds; never
+   place them in the same table. **The exception:** an index standardised against a
+   *non-degraded reference soil* and reported as a **ratio** is claimed to be comparable
+   across studies (Kuzyakov 2020 — see §4).
 3. **State the support.** Point? Plot? Field? Catchment? Averaging point SQIs is *not* valid
    upscaling (Drewry 2024).
 
@@ -164,10 +167,31 @@ Published limits worth reusing: pH optimum **6.5–7.0** (Arshad & Martin) or **
 → sqi-aggregation
 
 ```
-ADDITIVE            SQI = (1/n) Σ sᵢ                      ← avoid
-WEIGHTED ADDITIVE   SQI = Σ wᵢ·sᵢ                          ← the workhorse
-AREA                SQI = 0.5 · Σ sᵢ² · sin(2π/n)          ← needs NO weights
+ADDITIVE            SQI = (1/n) Σ sᵢ                       ← avoid
+WEIGHTED ADDITIVE   SQI = Σ wᵢ·sᵢ                           ← the workhorse
+AREA                SQI = 0.5 · Σ stPᵢ² · sin(2π/n)         ← needs NO weights
 ```
+
+**Area — read this before using it.** The formula is the **square** of each standardised
+parameter (verified against Kuzyakov 2020 eq. 2);
+the true polygon area would need `Σ sᵢ·sᵢ₊₁`, which would make the result depend on the
+arbitrary order of indicators. Implement the square.
+
+⚠️ **As designed it is a RATIO, not an absolute index.** Kuzyakov standardises against a
+**non-degraded reference soil** (reference = 1.0) and reports
+`Area_degraded / Area_non-degraded` — his worked figure gives **0.47**, "half the function
+lost". *"Comparison with non-degraded soil is required."*
+
+| Use | Standardised against | Comparable across studies? |
+|---|---|---|
+| **Absolute** (Yuan's adaptation) | your own sample | **no** |
+| **Ratio** (Kuzyakov's design) | a non-degraded reference soil | **claimed yes** ⭐ |
+
+The weight-independence people cite is a consequence of **taking a ratio**, not of the
+formula. Use the formula without a reference and the incomparability returns. Optimum-type
+parameters (pH, permeability) standardise by **distance from the optimum**; compute **per
+horizon**; and note the area route **cannot assess multicollinearity**, so pair it with a real
+MDS step.
 
 **Do not use the unweighted additive index** unless you have proved it discriminates.
 Maaz: it crushed **94%** of plots into the middle
@@ -246,6 +270,7 @@ predictive skill.
 | **Which method should I use at all?** | run the four-choice decomposition; MDS matters most | Yuan 2026 |
 | **Compare land uses / management** | PCA-MDS → non-linear scoring → weighted additive → ANOVA | Huera-Lucero |
 | **Quantify degradation** | SQI as *response*; piecewise SEM to find the mediator; don't assume SOC is the signal | Sarapatka |
+| **Degradation as a *fraction of function lost*** | SQI-area **ratio** vs a non-degraded reference soil; plus sensitivity/resistance vs SOC change | Kuzyakov |
 | **Balanced fertilisation** | PCA-MDS → linear scoring → WAI → **validate against yield**; optimise doses, don't maximise | Theresa |
 | **Soil health scoring at scale** | CFA/SEM; adjust for inherent factors; check discrimination | Maaz |
 | **Fertility index specifically** | the fertility branch, incl. non-compensatory threshold routes | soil-fertility-index |

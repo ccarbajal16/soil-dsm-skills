@@ -71,20 +71,30 @@ foreach ($m in @($marketplaceJson, $pluginJson)) {
   }
 }
 
-# 2c) if the roster changed since the last tag, the manifests must have changed too
+# 2c) if the ROSTER changed since the last tag, the manifests must have changed too.
+#     Roster change = a skill was added, removed or renamed. Editing the CONTENT of an
+#     existing skill is not a roster change and must not trip this check.
 $lastTag = (git -C $root describe --tags --abbrev=0 2>$null)
 if ($LASTEXITCODE -eq 0 -and $lastTag) {
-  $touched = git -C $root diff --name-only "$lastTag..HEAD" -- . 2>$null
-  $pending = git -C $root status --porcelain | ForEach-Object { ($_ -replace '^.{3}','').Trim('"') }
-  $allChanged = @($touched) + @($pending)
+  $prevRoster = @(git -C $root ls-tree -d --name-only "${lastTag}:plugins/dsm-soil/skills" 2>$null)
+  $added   = $roster     | Where-Object { $prevRoster -notcontains $_ }
+  $removed = $prevRoster | Where-Object { $roster     -notcontains $_ }
 
-  $rosterChanged = $allChanged | Where-Object { $_ -like 'plugins/dsm-soil/skills/*' -or $_ -eq 'build.ps1' -or $_ -eq 'build.sh' }
-  if ($rosterChanged) {
+  if ($added -or $removed) {
+    $what = @()
+    if ($added)   { $what += "added: $($added -join ', ')" }
+    if ($removed) { $what += "removed: $($removed -join ', ')" }
+    $what = $what -join '; '
+
+    $touched = git -C $root diff --name-only "$lastTag..HEAD" -- . 2>$null
+    $pending = git -C $root status --porcelain | ForEach-Object { ($_ -replace '^.{3}','').Trim('"') }
+    $allChanged = @($touched) + @($pending)
+
     if (-not ($allChanged | Where-Object { $_ -eq '.claude-plugin/marketplace.json' })) {
-      $problems += "skills changed since $lastTag but marketplace.json was not updated"
+      $problems += "roster changed since $lastTag ($what) but marketplace.json was not updated"
     }
     if (-not ($allChanged | Where-Object { $_ -like '*dsm-soil/.claude-plugin/plugin.json' })) {
-      $problems += "skills changed since $lastTag but plugin.json was not updated"
+      $problems += "roster changed since $lastTag ($what) but plugin.json was not updated"
     }
   }
 }
