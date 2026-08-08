@@ -163,10 +163,14 @@ export DSM_VAULT="/d/path/to/your-vault/skills-forge"
 
 ### Release in one command
 
-`release.ps1` does the whole publish flow: rebuild from the vault → bump the plugin version → commit → push.
+`release.ps1` does the whole publish flow:
 
 ```
-# preview only — no writes, no commit, no push:
+build from the vault → guard the manifests → bump version → commit → push → tag → GitHub release
+```
+
+```
+# preview only — no writes, no commit, no push, no tag:
 powershell -ExecutionPolicy Bypass -File release.ps1 -DryRun
 
 # patch release (0.1.0 -> 0.1.1):
@@ -175,18 +179,39 @@ powershell -ExecutionPolicy Bypass -File release.ps1 -Message "add sampling pape
 # minor / major / explicit version:
 powershell -ExecutionPolicy Bypass -File release.ps1 -Bump minor
 powershell -ExecutionPolicy Bypass -File release.ps1 -Version 1.0.0
+
+# release notes from a file (otherwise gh --generate-notes):
+powershell -ExecutionPolicy Bypass -File release.ps1 -NotesFile notes.md
 ```
 
 It skips cleanly if nothing changed since the last release. After it pushes, installed copies update
 with `/plugin marketplace update soil-dsm-skills` + `/reload-plugins` (see
 [Update an installed copy](#update-an-installed-copy)).
 
-Two things `release.ps1` does **not** do, so handle them by hand when they apply:
+#### The manifest guard
 
-- **Git tag / GitHub release** — add one after the push if you want the release to show up under
-  *Releases*: `git tag -a vX.Y.Z -m "..." && git push origin vX.Y.Z`
-- **`.claude-plugin/marketplace.json`** — its `description` is what users read in the `/plugin`
-  **Discover** tab. Update it when the skill roster changes; nothing bumps it automatically.
+Manifests are the only thing a user reads **before** installing, so a stale description reaches
+everyone. Before committing anything, the script checks:
+
+1. every skill declared in `build.ps1` actually compiled — and nothing stale is left in `skills/`;
+2. any `"N skills"` claim in `marketplace.json` and `plugin.json` matches the real roster count;
+3. if the roster changed since the last tag, **both** manifests were updated too.
+
+A failure prints what is wrong and **exits 1 without committing**. Override with `-Force` only when
+you are sure. This exists because v0.4.1 shipped a `marketplace.json` still advertising the previous
+roster — the guard turns that silent failure into a loud one.
+
+#### Escape hatches
+
+| Flag | Effect |
+|---|---|
+| `-DryRun` | preview everything, write nothing |
+| `-Force` | release despite a failing manifest guard |
+| `-SkipTag` | commit and push, but no tag and no release |
+| `-SkipRelease` | tag and push the tag, but no GitHub release |
+
+The script refuses to reuse an existing tag, and falls back gracefully with a printed command if the
+`gh` CLI is not installed.
 
 **Manual alternative** (or from Git Bash / macOS / Linux, which has `build.sh` instead of `build.ps1`):
 
@@ -204,7 +229,7 @@ soil-dsm-skills/
 │   ├── .claude-plugin/plugin.json      # plugin manifest
 │   └── skills/<name>/SKILL.md          # the 9 self-contained skills (built)
 ├── build.ps1 / build.sh                # compile skills from the vault (Windows / Unix)
-├── release.ps1                         # one-command: build + version bump + commit + push
+├── release.ps1                         # one-command: build + guard + bump + commit + push + tag + release
 ├── install.ps1 / install.sh            # manual install fallback
 ├── LICENSE                             # MIT
 └── README.md
