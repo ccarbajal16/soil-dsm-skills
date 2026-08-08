@@ -242,6 +242,22 @@ that rather than picking your favourite.
 
 → structural-equation-modelling · lavaan · piecewisesem
 
+⚠️ **First: "SEM" names three different estimators.** All three corpus papers say "SEM"; they ran
+three methods with different assumptions, diagnostics and sample-size demands. **Pick by n and
+design, and never judge one by another's standards.**
+
+| | **CB-SEM** (`lavaan`) | **Piecewise SEM** (`piecewiseSEM`) | **PLS-PM** (`plspm`) |
+|---|---|---|---|
+| Paper | Maaz (n = 567) | Sarapatka (n = 60) | Wang (8 plots) |
+| Latent variables | yes, reflective | no — observed only | composites, reflective **or formative** |
+| Random effects | limited | **native, per equation** | no |
+| Sample size | **hundreds** | modest | **small — its selling point** |
+| Fit statistic | CFI, RMSEA, SRMR | **Fisher's C** (p > 0.05 = good) | **GoF, R², AVE, composite reliability** |
+
+**At small n the answer is not "give up" — it is PLS-PM.** And ⚠️ **never report CFI/RMSEA/SRMR for
+a PLS-PM fit**; those do not exist for it. Report GoF, R² per endogenous construct,
+composite reliability/AVE for reflective blocks, and **bootstrap CIs** on the paths.
+
 Two distinct uses. **Do not conflate them.**
 
 **(a) SEM *as* the index** — Maaz, needs **n in the hundreds**:
