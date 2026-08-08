@@ -11,24 +11,28 @@ Eleven skills that give Claude Code working knowledge of **digital soil mapping 
 
 Distributed as a **Claude Code plugin** (`dsm-soil`) via this repo, which doubles as a **plugin marketplace**.
 
-## Research-affiliated positioning
+## Where this tool is sharp
 
-`soil-dsm-skills` is a **research-affiliated tool**: it is tied to the project's curated DSM
-knowledge wiki, literature corpus, and open-source method packages—not to an institutional
-endorsement. Rather than acting as a generic soil-science assistant, it turns that research base
-into operational guidance and makes unresolved or underimplemented methods visible instead of
-presenting them as solved.
+This is **not a general soil-science assistant**. It is a research instrument aimed at the places
+where the literature is thin, contested, or not yet implemented — and it says so out loud instead of
+presenting those places as solved.
 
-| Gap signalled by the project corpus | What this tool contributes | Current status |
+Two things follow from that. It carries **the methods most tools skip**: the weight-free area
+aggregation and its reference-soil ratio, network-analysis indicator selection, uncertainty
+propagated *into* a derived class, and validation that tests whether an index actually discriminates.
+And it **marks its own boundaries** — where the corpus reaches a gap, the skill names the gap rather
+than papering over it.
+
+| Gap in the literature | What this tool contributes | Current status |
 |---|---|---|
 | **Correlated Monte-Carlo uncertainty propagation into a derived fertility or soil-quality class** | A workflow that carries per-property uncertainty, spatial error autocorrelation, and cross-property correlation through the index/classification, then reports class probability and entropy inside the area of applicability | Guidance available in [`soil-fertility-mapping`](./plugins/dsm-soil/skills/soil-fertility-mapping/SKILL.md) and [`spatial-prediction-uncertainty`](./plugins/dsm-soil/skills/spatial-prediction-uncertainty/SKILL.md); a complete national worked example remains an explicit research gap |
 | **Alternative SQI construction and defensible validation** | Sigmoidal scoring, weight-free area aggregation, network-analysis MDS, recipe sensitivity, fidelity to the full indicator set, external validation, and stability checks | Method guidance available in [`soil-quality-index`](./plugins/dsm-soil/skills/soil-quality-index/SKILL.md); executable package coverage is still evolving, and the corpus reports no head-to-head comparison across all weighting families |
 | **Uncertainty-aware composite soil indices** | A concrete route from point-valued SQI/SFI outputs to uncertainty distributions and decision-class probabilities | The method is specified, but the corpus contains no completed worked uncertainty-aware SQI example; this tool marks that boundary explicitly rather than claiming closure |
 | **Saturation-aware and hybrid SOC modelling** | RothC limitations are made explicit and paired with a process-model + ML research direction, including possible saturation constraints | Research direction documented in [`rothc-temporal-modelling`](./plugins/dsm-soil/skills/rothc-temporal-modelling/SKILL.md) and [`hybrid-process-ml-soc`](./plugins/dsm-soil/skills/hybrid-process-ml-soc/SKILL.md); not claimed as a solved production method |
 
-These statuses describe the evidence encoded in the current built skills. The full wiki and paper
-corpus are the source of truth and are not distributed in this repository, so this positioning is a
-traceable project-corpus claim—not an independent systematic-review claim.
+**Scope of these claims.** They describe what the built skills encode, traced to a curated corpus of
+60+ papers. The wiki and the papers themselves are the source of truth and are not distributed here.
+This is a claim about *that* corpus — not an independent systematic review of the field.
 
 ## How the skills connect
 
