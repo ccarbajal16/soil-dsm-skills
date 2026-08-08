@@ -342,13 +342,20 @@ independent papers show it fails alone:
 
 ---
 
-## 10. Runnable — soilquality (Carbajal)
+## 10. Runnable — what exists in R
 
-The R package implements the PCA route end to end:
+### The three packages (verified against their function indexes, 2026-08-08)
+
+| Package | Covers | Use it for |
+|---|---|---|
+| **`SQIpro`** (CRAN) | six index methods — linear, regression, PCA, **fuzzy logic**, **entropy weighting**, **TOPSIS**; scoring (`score_more/less/optimum(bell)/trapezoid/custom`); `select_mds` (PCA + VIF); `sqi_anova`; `sqi_sensitivity` (leave-one-out); six `plot_*` incl. `plot_radar` | the **conventional routes**, with the widest method menu |
+| **`SQI`** (CRAN) | linear · regression · PCA | a lighter subset of the same ground |
+| **soilquality** (Carbajal) | PCA-MDS → **AHP weighting with a Consistency Ratio** → scoring → weighted additive | **AHP weighting**, which neither CRAN package offers |
 
 ```r
-standardize_numeric()                      # step 1: z-score before PCA
-pca_select_mds(data, var_threshold, loading_threshold)   # MDS; loading_threshold = the 10% rule
+# soilquality — the PCA route end to end
+standardize_numeric()                      # z-score before PCA
+pca_select_mds(data, var_threshold, loading_threshold)   # loading_threshold = the "within 10%" rule
 ratio_to_saaty() -> create_ahp_matrix() -> ahp_weights() # AHP weights + consistency ratio CR<0.10
 score_higher_better() / score_lower_better()
 score_optimum(x, optimum, tol, penalty = c("linear","quadratic"))
@@ -358,11 +365,22 @@ compute_sqi_properties(...)                # weighted additive aggregation
 plot_sqi_report()
 ```
 
-**Three gaps this corpus identifies, all small additions:**
-1. **Sigmoidal scoring** `1/(1+(x/x₀)^±2.5)` — the dominant form in this literature, not yet exposed.
-2. **Area aggregation** — one line: `0.5 * sum(s^2) * sin(2*pi/length(s))`; gives the weight-free route.
-3. **Network-analysis MDS** — Spearman + `igraph::cluster_louvain()` + `eigen_centrality()`;
-   Yuan found it beats PCA.
+### ⚠️ What no R package implements
+Several methods this skill recommends have **no packaged implementation anywhere**. If you need
+them, you write them:
+
+| Method | Why it matters | Section |
+|---|---|---|
+| **Area aggregation** `0.5 * sum(s^2) * sin(2*pi/length(s))` | the **weight-free** route. ⚠️ And as designed it is a **ratio** against a non-degraded reference soil — `Area_degraded / Area_reference` — which is the only construction claiming cross-study comparability. Note `SQIpro::plot_radar()` *draws* this polygon; nothing *measures* it | §4 |
+| **Reference-soil standardisation** | scoring against a reference rather than your own sample extremes | §3 |
+| **Network-analysis MDS** — Spearman → `igraph::cluster_louvain()` → `eigen_centrality()` | beats PCA on Yuan's data (fidelity R² 0.63 vs 0.58; SI 1.30–2.92 vs 1.14–2.72), needs no normality | §2 |
+| **Functional (EMDS) grouping** | best fidelity *and* best stability of the three grouping schemes | §2 |
+| **Validation by quantile distribution** | `SQIpro::sqi_sensitivity()` is leave-one-out — a different test. Nothing reports the decision-band distribution | §5 |
+| **Circularity checking** for path models on an index | no SEM package knows what an SQI is; no SQI package does path models | §6 |
+| **Inherent-property adjustment** before scoring | nothing adjusts for soil type × land-use history | §6 |
+
+**Sigmoidal scoring** `1/(1+(x/x₀)^±2.5)` is *not* on that list: `SQIpro` covers the scoring space
+(`score_optimum` bell curve, `score_trapezoid`, and `score_custom` for anything else).
 
 ---
 
@@ -403,6 +421,9 @@ plot_sqi_report()
 - composite-index-error-propagation — why the index collapses and when to expect it.
 - **Uncertainty on the index** — nobody in this corpus does it. Method exists
   (monte-carlo-uncertainty-propagation); a worked example does not.
+- **No packaged implementation** exists for the area/ratio method, reference-soil standardisation,
+  network-analysis MDS, functional grouping, distribution-based validation, or circularity checking
+  — see §10. Recommending a method the ecosystem cannot run is a real limit on this skill.
 
 
 ---
