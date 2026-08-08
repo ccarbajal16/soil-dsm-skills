@@ -1,7 +1,7 @@
 {
   "name": "dsm-soil",
-  "version": "0.4.1",
-  "description": "Digital soil mapping skills forged from the DSM knowledge wiki: fertility mapping, prediction uncertainty (AOA/LPD/MC), sampling design, ML for soil, end-to-end DSM workflow, map validation, RothC temporal modelling, hybrid process+ML SOC, and SOC-stock MRV.",
+  "version": "0.5.0",
+  "description": "Digital soil mapping, soil-quality indexing and soil spatial-analysis skills forged from the DSM knowledge wiki: soil quality & health indexing (SQI/SHI), fertility mapping, prediction uncertainty (AOA/LPD/MC), sampling design, ML for soil, end-to-end DSM workflow, map validation, RothC temporal modelling, hybrid process+ML SOC, SOC-stock MRV, and spatial statistics on areal data.",
   "author": {
     "name": "Carbajal"
   },
@@ -13,6 +13,9 @@
     "geospatial",
     "pedometrics",
     "soil-organic-carbon",
-    "soil-fertility"
+    "soil-fertility",
+    "soil-quality",
+    "soil-health",
+    "spatial-statistics"
   ]
 }

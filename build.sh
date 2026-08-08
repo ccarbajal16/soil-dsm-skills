@@ -15,7 +15,7 @@ skills=(
   soil-map-validation ml-for-soil-prediction digital-soil-mapping-workflow
   soc-stock-mrv rothc-temporal-modelling hybrid-process-ml-soc
   soil-fertility-mapping spatial-prediction-uncertainty soil-sampling-design
-  spatial-statistics-areal
+  spatial-statistics-areal soil-quality-index
 )
 note=$'\n\n---\n_Portable build from the DSM knowledge wiki (the source of truth). Obsidian cross-references were flattened for standalone use; regenerate with build.sh._\n'
 

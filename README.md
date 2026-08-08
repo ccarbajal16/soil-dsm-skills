@@ -7,17 +7,17 @@
 
 > **Portable Claude Code skills for Digital Soil Mapping** — expert soil-mapping know-how, distilled from the literature into an installable plugin.
 
-Ten skills that give Claude Code working knowledge of **digital soil mapping**: sampling design, ML modelling, prediction uncertainty, map validation, fertility indices, soil-organic-carbon accounting, and spatial statistics on areal data. Each is **forged from a knowledge wiki** built out of **50+ peer-reviewed papers** — so the guidance tracks the literature, not guesswork. Install once, use in any project, carry it across machines.
+Eleven skills that give Claude Code working knowledge of **digital soil mapping and soil assessment**: sampling design, ML modelling, prediction uncertainty, map validation, soil quality & health indexing, fertility indices, soil-organic-carbon accounting, and spatial statistics on areal data. Each is **forged from a knowledge wiki** built out of **60+ peer-reviewed papers** — so the guidance tracks the literature, not guesswork. Install once, use in any project, carry it across machines.
 
 Distributed as a **Claude Code plugin** (`dsm-soil`) via this repo, which doubles as a **plugin marketplace**.
 
 ## How the skills connect
 
-From raw literature to installable skills — and how the ten relate:
+From raw literature to installable skills — and how the eleven relate:
 
 ```mermaid
 flowchart TD
-    LIT["50+ papers<br/>soil-science literature"] --> WIKI["Obsidian knowledge wiki<br/>(source of truth)"]
+    LIT["60+ papers<br/>soil-science literature"] --> WIKI["Obsidian knowledge wiki<br/>(source of truth)"]
     WIKI --> DSM["digital-soil-mapping-workflow"]
 
     subgraph OP["Operational DSM"]
@@ -36,11 +36,17 @@ flowchart TD
         AREA["spatial-statistics-areal"]
     end
 
+    subgraph INDEX["Soil quality indexing"]
+        SQI["soil-quality-index"]
+    end
+
     WIKI --> ROTHC
     WIKI --> AREA
+    WIKI --> SQI
+    SQI -.-> FERT
 ```
 
-## The skills (10)
+## The skills (11)
 
 **🗺️ Operational DSM** — end-to-end mapping, from sampling to a finished map with uncertainty:
 
@@ -61,11 +67,19 @@ flowchart TD
 | `hybrid-process-ml-soc` | Fuse RothC + ML for space-time SOC (POML) |
 | `soc-stock-mrv` | SOC-stock MRV & carbon crediting |
 
+**🧪 Soil quality indexing** — turning many indicators into one defensible statement of soil condition:
+
+| Skill | What it does |
+|---|---|
+| `soil-quality-index` | Build and validate an SQI/SHI: minimum-data-set selection (PCA · network analysis · expert opinion), indicator scoring (linear / non-linear / optimum), weighting and aggregation (weighted-additive · **weight-free area method**), and validation that proves the index actually discriminates. Covers land-use and management comparison, degradation quantification, balanced fertilisation, **SEM** for soil health and its drivers, fuzzy association rules, and the ML + remote-sensing route to indicators |
+
 **📐 Areal / explanatory** — association and spillover across polygons, not prediction of a surface:
 
 | Skill | What it does |
 |---|---|
 | `spatial-statistics-areal` | Moran's I, LISA/BiLISA hot spots and outliers, Lee's L, spatial-weights robustness, Rao's-score (ex-LM) diagnostics, and SLX/SAR/SEM/SDM/SDEM with direct/indirect/total impacts — **R (`spdep`/`spatialreg`) and Python (`libpysal`/`esda`/`spreg`)**, both pipelines execution-verified and cross-checked |
+
+> `soil-quality-index` is built on a full-factorial comparison of the SQI recipe (24 indices from one dataset), so it ranks which choices actually matter — and it carries the traps that cost real projects, including the measured collapse from R² 0.90 to 0.23 when an index is computed from predicted properties instead of predicted directly.
 
 > Several skills go beyond guidance to **runnable R toolkits** — the open-source [`soilsampling`](https://github.com/ccarbajal16/soilsampling), [`MLSampling`](https://github.com/ccarbajal16/MLSampling), and [`soilquality`](https://github.com/ccarbajal16/soilquality) packages — so a design or index becomes concrete, reproducible code. `spatial-statistics-areal` ships an end-to-end `spdep`/`spatialreg` pipeline that was **checked by execution**, a parallel PySAL pipeline verified the same way, an R↔Python equivalence table, and a table of API traps that silently break real scripts.
 

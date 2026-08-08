@@ -1,6 +1,6 @@
 {
   "name": "soil-dsm-skills",
-  "description": "Digital soil mapping and soil spatial-analysis skills for Claude Code, forged from a knowledge wiki built on 50+ peer-reviewed papers.",
+  "description": "Digital soil mapping, soil-quality indexing and soil spatial-analysis skills for Claude Code, forged from a knowledge wiki built on 60+ peer-reviewed papers.",
   "owner": {
     "name": "Carbajal"
   },
@@ -8,7 +8,7 @@
     {
       "name": "dsm-soil",
       "source": "./plugins/dsm-soil",
-      "description": "10 soil-science skills forged from the DSM knowledge wiki: fertility mapping, prediction uncertainty (AOA/LPD/Monte-Carlo), sampling design, ML for soil, end-to-end DSM workflow, map validation, RothC temporal modelling, hybrid process+ML SOC, SOC-stock MRV, and spatial statistics on areal data (Moran/LISA/BiLISA, SAR/SEM/SDM/SDEM, spillover impacts) with verified R and Python pipelines."
+      "description": "11 soil-science skills forged from the DSM knowledge wiki: soil quality & health indexing (SQI/SHI — minimum data set, indicator scoring, weighting, aggregation, validation, SEM, fuzzy rules), fertility mapping, prediction uncertainty (AOA/LPD/Monte-Carlo), sampling design, ML for soil, end-to-end DSM workflow, map validation, RothC temporal modelling, hybrid process+ML SOC, SOC-stock MRV, and spatial statistics on areal data (Moran/LISA/BiLISA, SAR/SEM/SDM/SDEM, spillover impacts) with verified R and Python pipelines."
     }
   ]
 }
