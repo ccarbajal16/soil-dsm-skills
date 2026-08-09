@@ -26,7 +26,7 @@ than papering over it.
 | Gap in the literature | What this tool contributes | Current status |
 |---|---|---|
 | **Correlated Monte-Carlo uncertainty propagation into a derived fertility or soil-quality class** | A workflow that carries per-property uncertainty, spatial error autocorrelation, and cross-property correlation through the index/classification, then reports class probability and entropy inside the area of applicability | Guidance available in [`soil-fertility-mapping`](./plugins/dsm-soil/skills/soil-fertility-mapping/SKILL.md) and [`spatial-prediction-uncertainty`](./plugins/dsm-soil/skills/spatial-prediction-uncertainty/SKILL.md); a complete national worked example remains an explicit research gap |
-| **Alternative SQI construction and defensible validation** | Sigmoidal scoring, weight-free area aggregation, network-analysis MDS, recipe sensitivity, fidelity to the full indicator set, external validation, and stability checks | Method guidance available in [`soil-quality-index`](./plugins/dsm-soil/skills/soil-quality-index/SKILL.md); executable package coverage is still evolving, and the corpus reports no head-to-head comparison across all weighting families |
+| **Alternative SQI construction and defensible validation** | Sigmoidal scoring, weight-free area aggregation, network-analysis MDS, recipe sensitivity, fidelity to the full indicator set, external validation, and stability checks | Method guidance in [`soil-quality-index`](./plugins/dsm-soil/skills/soil-quality-index/SKILL.md), and **every method in this row is now runnable**: [`soilquality`](https://github.com/ccarbajal16/soilquality) ≥ 2.3.0 implements them all, each with tests — area aggregation with the reference-soil ratio, network-analysis MDS, functional (EMDS) grouping, sigmoidal and reference-soil scoring, distribution-based validation, and the circularity and inherent-property guards. What remains open is comparative, not executable: the corpus still reports **no head-to-head comparison across all weighting families** |
 | **Uncertainty-aware composite soil indices** | A concrete route from point-valued SQI/SFI outputs to uncertainty distributions and decision-class probabilities | The method is specified, but the corpus contains no completed worked uncertainty-aware SQI example; this tool marks that boundary explicitly rather than claiming closure |
 | **Saturation-aware and hybrid SOC modelling** | RothC limitations are made explicit and paired with a process-model + ML research direction, including possible saturation constraints | Research direction documented in [`rothc-temporal-modelling`](./plugins/dsm-soil/skills/rothc-temporal-modelling/SKILL.md) and [`hybrid-process-ml-soc`](./plugins/dsm-soil/skills/hybrid-process-ml-soc/SKILL.md); not claimed as a solved production method |
 
@@ -80,7 +80,7 @@ flowchart TD
 | `ml-for-soil-prediction` | Choose/tune/validate ML for soil (no universal winner; feature engineering; interpretability) |
 | `soil-map-validation` | CV strategy, accuracy metrics, honest uncertainty, aggregation |
 | `spatial-prediction-uncertainty` | Per-pixel intervals + area-of-applicability (AOA/LPD/DI) via CAST; Monte-Carlo to class |
-| `soil-fertility-mapping` | Multi-property fertility maps → Soil Fertility Index with two-axis uncertainty; runnable SQI (`soilquality`: PCA-MDS, AHP, scoring) |
+| `soil-fertility-mapping` | Multi-property fertility maps → Soil Fertility Index with two-axis uncertainty; runnable SQI (`soilquality`: PCA + network MDS, functional grouping, AHP / loading / centrality weights, linear-sigmoid-optimum-reference scoring, weighted or area aggregation, validation) |
 
 **🌱 Carbon / SOC** — soil-organic-carbon over time, and carbon accounting:
 
@@ -104,7 +104,7 @@ flowchart TD
 
 > `soil-quality-index` is built on a full-factorial comparison of the SQI recipe (24 indices from one dataset), so it ranks which choices actually matter — and it carries the traps that cost real projects, including the measured collapse from R² 0.90 to 0.23 when an index is computed from predicted properties instead of predicted directly.
 
-> Several skills go beyond guidance to **runnable R toolkits** — the open-source [`soilsampling`](https://github.com/ccarbajal16/soilsampling), [`MLSampling`](https://github.com/ccarbajal16/MLSampling), and [`soilquality`](https://github.com/ccarbajal16/soilquality) packages — so a design or index becomes concrete, reproducible code. `spatial-statistics-areal` ships an end-to-end `spdep`/`spatialreg` pipeline that was **checked by execution**, a parallel PySAL pipeline verified the same way, an R↔Python equivalence table, and a table of API traps that silently break real scripts.
+> Several skills go beyond guidance to **runnable R toolkits** — the open-source [`soilsampling`](https://github.com/ccarbajal16/soilsampling), [`MLSampling`](https://github.com/ccarbajal16/MLSampling), and [`soilquality`](https://github.com/ccarbajal16/soilquality) packages — so a design or index becomes concrete, reproducible code. `soil-quality-index` is the closest coupling of the three: the routes it recommends are implemented in `soilquality`, which carries a **regression baseline pinned against a golden output**, 23 test files, four vignettes and a green `R CMD check` — and the skill names the package's three defaults that are *not* the published rule, so a result computed with it can be quoted safely. `spatial-statistics-areal` ships an end-to-end `spdep`/`spatialreg` pipeline that was **checked by execution**, a parallel PySAL pipeline verified the same way, an R↔Python equivalence table, and a table of API traps that silently break real scripts.
 
 ## Install (recommended: plugin + marketplace)
 
@@ -250,7 +250,7 @@ soil-dsm-skills/
 ├── .claude-plugin/marketplace.json     # marketplace manifest (lists the plugin)
 ├── plugins/dsm-soil/
 │   ├── .claude-plugin/plugin.json      # plugin manifest
-│   └── skills/<name>/SKILL.md          # the 9 self-contained skills (built)
+│   └── skills/<name>/SKILL.md          # the 11 self-contained skills (built)
 ├── build.ps1 / build.sh                # compile skills from the vault (Windows / Unix)
 ├── release.ps1                         # one-command: build + guard + bump + commit + push + tag + release
 ├── install.ps1 / install.sh            # manual install fallback
