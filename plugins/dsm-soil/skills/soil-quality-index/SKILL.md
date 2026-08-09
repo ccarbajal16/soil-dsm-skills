@@ -84,6 +84,9 @@ The most consequential step. → minimum-dataset-construction
 5. Where several survive one PC, drop those correlated at **r > 0.6**, keeping the higher loading.
 6. Weights = communality / Σ communalities, or PC variance share.
 
+→ `soilquality::pca_select_mds(data, within = 0.10, adequacy = "warn")`; adequacy on its own is
+`pca_adequacy()`. ⚠️ `within` defaults to `NULL`, which is *not* the rule in step 4 — see §10.
+
 ### Route B — Network analysis (better on Yuan's data)
 
 1. Edges where **Spearman |r| ≥ 0.60, p < 0.01** (no normality assumption).
@@ -91,6 +94,9 @@ The most consequential step. → minimum-dataset-construction
 3. Keep modules with max **eigenvector centrality > 0.6**.
 4. Within a module, indicators within **10% of max centrality**; tie-break by **weighted degree**.
 5. Weights = centrality / Σ centralities in module.
+
+→ `soilquality::na_select_mds()`. ⚠️ Louvain is randomised: fix `seed`, then **vary it** to check
+the selection is real, and pass `component = "all"` on a disconnected network (§10).
 
 ### Route C — Expert opinion
 Legitimate when data are incomplete or the question is specific.
@@ -108,6 +114,12 @@ The five functions: **carbon cycling · nutrient cycling · physical structure s
 buffering & filtration · biodiversity maintenance**. Pick the highest **norm value**
 `N_ik = √(Σ u²_ik·λ_k)` per group. → soil-ecosystem-multifunctionality
 
+→ `soilquality::assign_function_groups()`, then `groups =` on either selector and
+`selector = "norm"` on the PCA route. Ungrouped selection routinely leaves **entire functions
+unrepresented** — on the package's structured fixture, 2 of 4 covered ungrouped versus 4 of 4
+grouped. ⚠️ Nothing in the usual indicator vocabulary measures **biodiversity**, so most indices
+cover four functions; say so instead of implying five.
+
 ⚠️ **Do not group by physical/chemical/biological.** Maaz
 tested that structure by CFA and found **no statistical support** for it; Yuan independently
 found functional grouping beat it. Two methods, two continents, same verdict.
@@ -121,8 +133,10 @@ found functional grouping beat it. Two methods, two continents, same verdict.
 | n in the hundreds, want structure *and* weights from data | **CFA/SEM** (§6) |
 | **Any of them** | **group by ecosystem function** |
 
-**Cheap robustness check:** run two routes, keep the intersection. On Yuan's tillage data
-**SOC, DOC and soil compaction** survived all six variants.
+**Cheap robustness check:** run two routes, keep the intersection — `soilquality::mds_consensus()`.
+On Yuan's tillage data **SOC, DOC and soil compaction** survived all six variants. ⚠️ An empty
+intersection is a finding, not a bug: PCA selects for variance, the network for centrality, and on
+a structured dataset they can agree on nothing.
 
 **Expect biology.** Data-driven selection picks more biological indicators than the
 literature's usage frequency suggests — Yuan's NA route chose microbial properties for ~55%
@@ -151,11 +165,17 @@ default and say so.
 Bilgili et al. 2017 — cited inside Yuan's own introduction — found L > NL. Practice is split.
 → linear-vs-nonlinear-scoring
 **Compute both. It costs nothing. If your conclusions flip, that is the finding.**
+→ `soilquality::score_sigmoid(x, direction, x0, b = 2.5)`, then `sqi_stability()` (§5) to see
+whether the ranking moved.
 
 ⚠️ **Critical limits sit upstream of the function shape.** Scoring against your own sample's
 `X_max` is what makes indices incomparable. For fertility, anchor limits to **crop yield**
 (relative cumulative yield regressions); for contamination, to **regulatory limits**.
 → indicator-critical-limits
+→ `soilquality::standardize_to_reference(x, reference, direction)` scores against a non-degraded
+soil instead of your own extremes — the documented escape from incomparability. ⚠️ Its price is a
+defensible reference site (same soil type, parent material, climate, undisturbed); a bad one does
+not add noise, it silently rescales every index built on it.
 
 Published limits worth reusing: pH optimum **6.5–7.0** (Arshad & Martin) or **5.5–7.0**
 (Chaudhry); minimum soil depth **50 cm**.
@@ -200,6 +220,7 @@ sensitive**. Xue gained **11 points**
 of accuracy purely by learning weights instead of fixing them.
 
 **If you cannot defend your weights, use the area method** and remove the step.
+→ `soilquality::sqi_area(s, reference)`, or `compute_sqi_df(method = "area", reference = )`.
 
 ⚠️ Note `sᵢ²` in the area formula — it penalises unevenness, so Area is **partially
 non-compensatory** and is not a monotone rescaling of the weighted sum.
@@ -233,6 +254,12 @@ cannot inform a decision no matter how well it correlates.
 **Test 4 — stability:** recompute under ≥ 2 method combinations. If the ranking flips, report
 that rather than picking your favourite.
 
+→ `soilquality::sqi_validate(x, tds, external)` returns all four and **warns** when more than
+`middle_band_threshold` (default 0.8) of samples land in the middle bands; `sqi_stability(a, b)`
+gives Spearman ρ per pair **plus a flag when the best or worst sample changes** — a high ρ does
+not rescue a changed extreme if the extreme is what you act on. ⚠️ `external_r_max` (default 0.9)
+catches the other trap: an "external" criterion that is really one of the index's own indicators.
+
 **What nobody does:** put uncertainty on the index. Every SQI in this corpus is a point value.
 → §8.
 
@@ -262,7 +289,10 @@ Two distinct uses. **Do not conflate them.**
 
 **(a) SEM *as* the index** — Maaz, needs **n in the hundreds**:
 CFA → second-order "soil health" factor → **adjust indicators for inherent properties**
-(regress on soil type × land-use history so soils aren't penalised for their parent material)
+(`soilquality::adjust_inherent()`, or `compute_sqi_df(inherent = ~ soil_type * land_use_history)`
+— regress on soil type × land-use history so soils aren't penalised for their parent material;
+it runs **before** selection and scoring, and its `$r_squared` tells you how much of each
+indicator was inheritance rather than management)
 → handle clustering (Maaz: **ICC > 75%**, so cluster-robust or multilevel) → `ecdf()` to
 quantile classes. Fit: **CFI > 0.95, SRMR < 0.08, RMSEA < 0.06, ω > 0.7**. Factor loadings
 *are* the weights.
@@ -276,6 +306,11 @@ effects into direct and indirect.
 Sarapatka's R² = 0.99 is largely structural, and the authors say so. **Valid:** relative path
 coefficients, and paths from variables *not* in the index. **Invalid:** quoting that R² as
 predictive skill.
+
+→ `soilquality::check_circularity(index, predictors, data, allow_components = FALSE)` refuses the
+overlap by default and labels the legitimate **decomposition** use when you allow it. ⚠️ Pass
+`data` — renaming is not laundering: an index built on `OM` regressed against `SOC` is the same
+measurement × 1.724, and only the correlation check catches it.
 
 ---
 
@@ -344,43 +379,116 @@ independent papers show it fails alone:
 
 ## 10. Runnable — what exists in R
 
-### The three packages (verified against their function indexes, 2026-08-08)
+### The three packages (function indexes verified 2026-08-09)
 
 | Package | Covers | Use it for |
 |---|---|---|
 | **`SQIpro`** (CRAN) | six index methods — linear, regression, PCA, **fuzzy logic**, **entropy weighting**, **TOPSIS**; scoring (`score_more/less/optimum(bell)/trapezoid/custom`); `select_mds` (PCA + VIF); `sqi_anova`; `sqi_sensitivity` (leave-one-out); six `plot_*` incl. `plot_radar` | the **conventional routes**, with the widest method menu |
 | **`SQI`** (CRAN) | linear · regression · PCA | a lighter subset of the same ground |
-| **soilquality** (Carbajal) | PCA-MDS → **AHP weighting with a Consistency Ratio** → scoring → weighted additive | **AHP weighting**, which neither CRAN package offers |
+| **soilquality ≥ 2.3.0** (Carbajal, MIT, GitHub) | the **corpus methods CRAN lacks** — area/ratio aggregation, reference-soil standardisation, network-analysis MDS, functional (EMDS) grouping, distribution-based validation, circularity checking, inherent-property adjustment — plus **AHP weighting with a Consistency Ratio** | almost everything §2–§6 recommends that CRAN cannot run |
+
+⚠️ **Check the version.** As of **v2.3.0** `soilquality` implements nearly every method this
+section previously listed as having no packaged implementation. Below 1.1.0 it is the PCA-MDS →
+AHP → linear → weighted-additive route only.
+
+### The pipeline (`soilquality` ≥ 2.3.0)
 
 ```r
-# soilquality — the PCA route end to end
-standardize_numeric()                      # z-score before PCA
-pca_select_mds(data, var_threshold, loading_threshold)   # loading_threshold = the "within 10%" rule
-ratio_to_saaty() -> create_ahp_matrix() -> ahp_weights() # AHP weights + consistency ratio CR<0.10
-score_higher_better() / score_lower_better()
-score_optimum(x, optimum, tol, penalty = c("linear","quadratic"))
-score_threshold(x, thresholds, scores)     # piecewise expert critical limits
-score_indicators(data, mds, directions)
-compute_sqi_properties(...)                # weighted additive aggregation
-plot_sqi_report()
+compute_sqi_df(
+  df,
+  inherent     = ~ soil_type * land_use_history,  # §6  adjust BEFORE selecting and scoring
+  select       = c("pca", "network", "none"),     # §2  "none" builds the TDS index
+  network_args = list(seed = 1, component = "all"),
+  method       = c("weighted", "area"),           # §4
+  reference    = NULL                             # §4  supply one -> Kuzyakov RATIO
+)
 ```
 
-### ⚠️ What no R package implements
-Several methods this skill recommends have **no packaged implementation anywhere**. If you need
-them, you write them:
+Every step is also usable on its own:
+
+```r
+# §2  minimum data set
+pca_select_mds(data, var_threshold = 0.05, loading_threshold = 0.5,
+               within = NULL,          # <- set 0.10 for the published rule; see below
+               groups = NULL, selector = c("loading", "norm"),
+               adequacy = c("report", "warn", "ignore"))
+na_select_mds(data, r_min = 0.60, p_max = 0.01, centrality_min = 0.6, within = 0.10,
+              screen = TRUE, component = c("largest", "all"), groups = NULL, seed = 1L)
+mds_consensus(data)                 # the intersection of both routes
+assign_function_groups(properties)  # onto soil_function_groups (the five functions)
+pca_adequacy(data)                  # KMO + Bartlett
+
+# §3  scoring
+score_higher_better() / score_lower_better() / score_optimum() / score_threshold()
+score_sigmoid(x, direction = c("higher","lower"), x0 = NULL, b = 2.5)   # 1/(1+(x/x0)^b)
+standardize_to_reference(x, reference, direction = c("higher","lower","optimum"))
+# rule constructors for compute_sqi_*(): higher_better(), lower_better(), optimum_range(),
+# threshold_scoring(), sigmoid_scoring(), reference_scoring()
+
+# §4  weight and aggregate
+ratio_to_saaty() -> create_ahp_matrix() -> ahp_weights()   # AHP weights + CR < 0.10
+sqi_area(s, reference = NULL)                              # 0.5*sum(s^2)*sin(2*pi/n)
+
+# §5  validation
+sqi_validate(x, tds = NULL, external = NULL,
+             middle_band_threshold = 0.8, external_r_max = 0.9)
+sqi_stability(index_a, index_b, ...)   # does the RANKING survive a change of recipe?
+plot_sqi_validation()
+
+# §6  guards
+check_circularity(index, predictors, data = NULL, allow_components = FALSE, r_max = 0.9)
+adjust_inherent(data, indicators, inherent = ~ soil_type * land_use_history)
+sensitivity_resistance(degraded, reference, carbon = "SOC")   # Kuzyakov's second method
+```
+
+**Fixtures, and which is for what.** `soil_data` (50 samples) has almost no covariance
+structure — fine for scoring, weighting and aggregation, **useless** for any method that reads
+the structure *between* indicators. `soil_structured` (120 samples, 40 pairs at |ρ| ≥ 0.6) is
+the one for `na_select_mds()`, `mds_consensus()` and grouping. `soil_inherent` (180 samples)
+carries soil type, land-use history, management and a plot id, with **ICC 0.81–0.99** — the
+non-independence Maaz warned about, made visible.
+
+### ⚠️ Three defaults that are not the published rule
+
+1. **`pca_select_mds(within = NULL)`** — the default keeps only the **single highest-loading**
+   indicator per component. That is the package's historical behaviour, **not** the literature's
+   rule. Pass **`within = 0.10`** for "every indicator within 10% of the maximum loading" (§2
+   step 4). `loading_threshold` is an absolute floor and `within` a relative band — different
+   mechanisms, combinable.
+2. **`na_select_mds()` is not deterministic.** Louvain is randomised; six runs over identical
+   input returned two different data sets during the package's development. `seed = 1` makes a
+   run reproducible — it does **not** make a selection robust. Vary the seed and find out. On a
+   disconnected network pass **`component = "all"`**, or eigenvector centrality goes to ~0
+   outside the dominant component and a genuine correlated clique is discarded whole.
+3. **`adjust_inherent()` defaults to `method = "residual"`** — calling it *is* the deliberate
+   act. The pipeline never adjusts unless you pass `inherent =` to `compute_sqi_df()`. And do
+   not adjust by reflex: if your question is *which soil is inherently better* (siting,
+   valuation, capability), adjusting destroys the answer you came for.
+
+Two more worth knowing. `igraph` is in **`Suggests`**, not `Imports` — the package is MIT and a
+hard dependency on GPL-2+ `igraph` would pull the combined work into GPL on distribution — so
+the network route degrades gracefully when it is absent. And the **biodiversity** slot in
+`soil_function_groups` ships **empty on purpose**: nothing in the indicator vocabulary measures
+it, so an index built from these groups covers **four** functions, not five. Report it that way.
+
+### ⚠️ What still has no packaged implementation
+
+The list is now short. Everything else this skill recommends is runnable — see the pipeline above.
 
 | Method | Why it matters | Section |
 |---|---|---|
-| **Area aggregation** `0.5 * sum(s^2) * sin(2*pi/length(s))` | the **weight-free** route. ⚠️ And as designed it is a **ratio** against a non-degraded reference soil — `Area_degraded / Area_reference` — which is the only construction claiming cross-study comparability. Note `SQIpro::plot_radar()` *draws* this polygon; nothing *measures* it | §4 |
-| **Reference-soil standardisation** | scoring against a reference rather than your own sample extremes | §3 |
-| **Network-analysis MDS** — Spearman → `igraph::cluster_louvain()` → `eigen_centrality()` | beats PCA on Yuan's data (fidelity R² 0.63 vs 0.58; SI 1.30–2.92 vs 1.14–2.72), needs no normality | §2 |
-| **Functional (EMDS) grouping** | best fidelity *and* best stability of the three grouping schemes | §2 |
-| **Validation by quantile distribution** | `SQIpro::sqi_sensitivity()` is leave-one-out — a different test. Nothing reports the decision-band distribution | §5 |
-| **Circularity checking** for path models on an index | no SEM package knows what an SQI is; no SQI package does path models | §6 |
-| **Inherent-property adjustment** before scoring | nothing adjusts for soil type × land-use history | §6 |
+| **CFA loadings as index weights** (`weights_from_cfa()`) | the one route that derives weights from a measurement model instead of from assertion. `lavaan` gives the loadings; nothing carries them into an index | §6a |
+| **Uncertainty on the index** | every SQI in this corpus is a point value. The method exists (monte-carlo-uncertainty-propagation via spup); a worked example does not | §8 |
+| **SQI-aware path modelling** beyond the circularity guard | `lavaan` / `piecewiseSEM` / `plspm` estimate perfectly well, but none knows what an SQI is. Treat the route as documentation to follow, not a function to call | §6b |
+| **W-FARs with learned rule weights** | `SQIpro::sqi_fuzzy()` is fuzzy scoring, not mined-and-weighted association rules | §7 |
 
-**Sigmoidal scoring** `1/(1+(x/x₀)^±2.5)` is *not* on that list: `SQIpro` covers the scoring space
-(`score_optimum` bell curve, `score_trapezoid`, and `score_custom` for anything else).
+**Sigmoidal scoring is no longer a gap anywhere.** `soilquality::score_sigmoid()` implements
+`1/(1+(x/x₀)^b)` with `b` exposed as a parameter, and `SQIpro` covers the same space via
+`score_optimum` (bell curve), `score_trapezoid` and `score_custom`.
+
+⚠️ And the observation that used to sit here — that `SQIpro::plot_radar()` *draws* the radar
+polygon while nothing *measures* it — no longer holds: `soilquality::sqi_area()` measures it,
+with the reference-soil ratio.
 
 ---
 
@@ -421,9 +529,13 @@ them, you write them:
 - composite-index-error-propagation — why the index collapses and when to expect it.
 - **Uncertainty on the index** — nobody in this corpus does it. Method exists
   (monte-carlo-uncertainty-propagation); a worked example does not.
-- **No packaged implementation** exists for the area/ratio method, reference-soil standardisation,
-  network-analysis MDS, functional grouping, distribution-based validation, or circularity checking
-  — see §10. Recommending a method the ecosystem cannot run is a real limit on this skill.
+- **Weights from a measurement model** — `weights_from_cfa()` is still unbuilt, so the CFA route
+  of §6a ends at the loadings and has to be wired into the index by hand. See §10.
+- **The old limit is gone.** Area/ratio aggregation, reference-soil standardisation,
+  network-analysis MDS, functional grouping, distribution-based validation, circularity checking
+  and inherent-property adjustment all became runnable in `soilquality` ≥ 2.3.0. This skill no
+  longer recommends methods the ecosystem cannot execute — verify the version before assuming
+  otherwise.
 
 
 ---
