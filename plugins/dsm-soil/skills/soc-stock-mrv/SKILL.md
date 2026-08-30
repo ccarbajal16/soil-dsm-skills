@@ -78,6 +78,24 @@ trend the pure-DSM route struggles with.
   moments) or ~50 (REML); cap the range at ~half the area.
 - **Report temporal skill separately** — a good static stock map doesn't prove the change is right.
 
+## ⚠️ The uncertainty source that is usually missing: model choice
+
+Deductions are computed from **within-model** prediction error. That budget has a hole in it, and
+Wang 2024 measures how big it can be: two ML
+models and a process model over Australian SOC stocks, **all validated at R² > 0.8 out-of-sample**,
+producing continental estimates from **24.29 to 38.15 t ha⁻¹** — a **57% spread**.
+
+⚠️ **Pointwise validation does not certify an aggregate.** Errors that are small and unbiased at a
+point can accumulate systematically across millions of pixels, and a metric computed at the
+observation support says nothing about the support you are reporting on.
+→ uncertainty-aggregation · areal-data-support
+
+**What to do about it, cheaply:** run a second, genuinely different model — a different paradigm, not
+a different hyperparameter — over the same data, and report the between-model spread alongside your
+within-model interval. If the two models disagree by more than your deduction, **the deduction is not
+the binding constraint on your claim** and saying so is more defensible than not knowing.
+→ predictive-uncertainty · hybrid-po-ml
+
 ## Pitfalls
 - Quoting **point RMSE** as project uncertainty (hugely over-pessimistic → over-deduction).
 - Ignoring the temporal error correlation in the change variance.

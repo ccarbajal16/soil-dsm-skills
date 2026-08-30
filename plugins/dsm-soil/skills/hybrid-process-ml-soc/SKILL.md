@@ -64,6 +64,37 @@ Result in the reference case: hybrid **RMSE 0.29** vs ML 0.36 vs RothC 0.53; CCC
 - **ML to impute PO inputs** — use ML to fill carbon-input / covariate gaps that RothC needs.
 - **Saturation-constrained PO** — cap RothC's non-saturating growth (open research).
 
+## ⭐ Before you couple anything: run them in parallel
+
+Coupling is expensive. There is a cheaper design that answers a different — and often more urgent —
+question, and it should be considered first.
+
+Wang 2024 ran a random forest, a k-means + MLR
+model and the MIMICS process model **independently** over Australian SOC stocks, validated each
+out-of-sample, and reported the average and the spread.
+
+| | **Fusion** (POML, above) | **Parallel comparison** |
+|---|---|---|
+| Coupling | process output feeds the ML model | none |
+| Output | one prediction | an average, and **a range** |
+| Aim | a better single answer | an **honest** answer |
+| Cost | a coupled implementation | run both, compare |
+
+⭐ **The result that makes it worth doing first:** all four models validated at **R² > 0.8
+out-of-sample**, and their continental SOC-stock estimates still ranged from **24.29 to 38.15 t ha⁻¹**
+— a **57% spread**. Site-level accuracy did not certify the aggregate at all.
+
+**Use it to decide whether fusion is warranted.** If the paradigms already agree, coupling buys
+little. If they disagree by 57%, you have learned something important *before* writing any coupling
+code — and you have a defensible uncertainty statement that no single model can produce.
+→ predictive-uncertainty · uncertainty-aggregation
+
+⭐ **And a calibration finding that transfers to any process model over a heterogeneous region:**
+MIMICS optimised by **environmental drivers** beat the same model optimised by **plant functional
+type**, especially in non-forest soils. PFT grouping is the land-surface default and it is a
+*vegetation* taxonomy standing in for the drivers of a *soil* process. **Group your sites by what
+drives the process.** → rothc-calibration
+
 ## Preconditions (get these right or the hybrid inherits the weakness)
 - **A credible process run.** Garbage RothC → garbage augmentation. Nail
   carbon inputs (the dominant uncertainty — the reference used

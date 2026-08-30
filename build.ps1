@@ -29,7 +29,8 @@ $skills = @(
   'spatial-prediction-uncertainty',
   'soil-sampling-design',
   'spatial-statistics-areal',
-  'soil-quality-index'
+  'soil-quality-index',
+  'ensemble-ml-for-soil'
 )
 $utf8 = [System.Text.UTF8Encoding]::new($false)   # no BOM
 $note = "`n`n---`n_Portable build from the DSM knowledge wiki (the source of truth). Obsidian cross-references were flattened for standalone use; regenerate with build.ps1._`n"

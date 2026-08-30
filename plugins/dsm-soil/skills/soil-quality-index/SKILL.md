@@ -399,6 +399,7 @@ compute_sqi_df(
   inherent     = ~ soil_type * land_use_history,  # §6  adjust BEFORE selecting and scoring
   select       = c("pca", "network", "none"),     # §2  "none" builds the TDS index
   network_args = list(seed = 1, component = "all"),
+  pairwise_df  = NULL,                            # §4  the ONLY weight entry point - see below
   method       = c("weighted", "area"),           # §4
   reference    = NULL                             # §4  supply one -> Kuzyakov RATIO
 )
@@ -426,7 +427,12 @@ standardize_to_reference(x, reference, direction = c("higher","lower","optimum")
 # threshold_scoring(), sigmoid_scoring(), reference_scoring()
 
 # §4  weight and aggregate
-ratio_to_saaty() -> create_ahp_matrix() -> ahp_weights()   # AHP weights + CR < 0.10
+ratio_to_saaty(c(SOC = 3, pH = 1, BD = 2))  # importance ratios -> named pairwise matrix
+ahp_weights(pairwise, indicators = NULL)    # eigenvector weights + CR (want CR < 0.10)
+create_ahp_matrix(indicators, mode = "interactive", pairwise = NULL)
+#   ^ ⚠️ the default mode PROMPTS AT THE CONSOLE. Never call it in an unattended or agent run -
+#     it will block. Pass mode = "matrix", pairwise = <matrix> to use a pre-built one. It is a
+#     data-entry helper, NOT a step between the two functions above.
 sqi_area(s, reference = NULL)                              # 0.5*sum(s^2)*sin(2*pi/n)
 
 # §5  validation
@@ -477,10 +483,30 @@ The list is now short. Everything else this skill recommends is runnable — see
 
 | Method | Why it matters | Section |
 |---|---|---|
-| **CFA loadings as index weights** (`weights_from_cfa()`) | the one route that derives weights from a measurement model instead of from assertion. `lavaan` gives the loadings; nothing carries them into an index | §6a |
+| **CFA loadings as index weights** (`weights_from_cfa()`) | the one route that derives weights from a measurement model instead of from assertion. `lavaan` gives the loadings; carrying them into the index **is possible today, but the result mislabels them** — see the note below | §6a |
 | **Uncertainty on the index** | every SQI in this corpus is a point value. The method exists (monte-carlo-uncertainty-propagation via spup); a worked example does not | §8 |
 | **SQI-aware path modelling** beyond the circularity guard | `lavaan` / `piecewiseSEM` / `plspm` estimate perfectly well, but none knows what an SQI is. Treat the route as documentation to follow, not a function to call | §6b |
 | **W-FARs with learned rule weights** | `SQIpro::sqi_fuzzy()` is fuzzy scoring, not mined-and-weighted association rules | §7 |
+
+**How to use externally derived weights today** (CFA loadings, entropy, CRITIC, centrality from
+another tool — anything computed outside the package). `compute_sqi_df()` has exactly three weight
+routes: an AHP `pairwise_df`, network centrality when `select = "network"`, or equal weights. There
+is **no `weights =` argument**. So route your vector through the pairwise matrix:
+
+```r
+w   <- c(SOC = 0.82, TN = 0.74, BD = 0.41)   # e.g. standardised CFA loadings
+sqi <- compute_sqi_df(df, pairwise_df = ratio_to_saaty(w))
+```
+
+The round trip is **exact**: `ratio_to_saaty()` builds `p[i,j] = w[i]/w[j]`, which is rank-1 and
+perfectly consistent, and `ahp_weights()` takes the principal eigenvector — so the weights come
+back as `w / sum(w)`, unchanged.
+
+⚠️ **Two things the output then gets wrong, and you must correct them in your reporting.** The
+returned `$CR` is **0 by construction** — it is not evidence of consistent judgement, because CR
+measures agreement among *expert pairwise comparisons* and there were none. And the result calls
+them AHP weights when they are not. State the real provenance of your weights in words; §4's rule
+("always publish your weights") means the method that produced them, not just the numbers.
 
 **Sigmoidal scoring is no longer a gap anywhere.** `soilquality::score_sigmoid()` implements
 `1/(1+(x/x₀)^b)` with `b` exposed as a parameter, and `SQIpro` covers the same space via

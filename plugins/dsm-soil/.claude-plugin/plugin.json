@@ -1,7 +1,7 @@
 {
   "name": "dsm-soil",
-  "version": "0.5.6",
-  "description": "Digital soil mapping, soil-quality indexing and soil spatial-analysis skills forged from the DSM knowledge wiki: soil quality & health indexing (SQI/SHI), fertility mapping, prediction uncertainty (AOA/LPD/MC), sampling design, ML for soil, end-to-end DSM workflow, map validation, RothC temporal modelling, hybrid process+ML SOC, SOC-stock MRV, and spatial statistics on areal data.",
+  "version": "0.6.0",
+  "description": "Digital soil mapping, soil-quality indexing and soil spatial-analysis skills forged from the DSM knowledge wiki: soil quality & health indexing (SQI/SHI), fertility mapping, prediction uncertainty (AOA/LPD/MC), sampling design, ML for soil, ensemble ML (whether to combine models at all), end-to-end DSM workflow, map validation, RothC temporal modelling, hybrid process+ML SOC, SOC-stock MRV, and spatial statistics on areal data.",
   "author": {
     "name": "Carbajal"
   },
@@ -16,6 +16,8 @@
     "soil-fertility",
     "soil-quality",
     "soil-health",
-    "spatial-statistics"
+    "spatial-statistics",
+    "ensemble-learning",
+    "model-stacking"
   ]
 }

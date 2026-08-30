@@ -7,7 +7,7 @@
 
 > **Portable Claude Code skills for Digital Soil Mapping** — expert soil-mapping know-how, distilled from the literature into an installable plugin.
 
-Eleven skills that give Claude Code working knowledge of **digital soil mapping and soil assessment**: sampling design, ML modelling, prediction uncertainty, map validation, soil quality & health indexing, fertility indices, soil-organic-carbon accounting, and spatial statistics on areal data. Each is **forged from a knowledge wiki** built out of **60+ peer-reviewed papers** — so the guidance tracks the literature, not guesswork. Install once, use in any project, carry it across machines.
+Twelve skills that give Claude Code working knowledge of **digital soil mapping and soil assessment**: sampling design, ML modelling, ensemble ML, prediction uncertainty, map validation, soil quality & health indexing, fertility indices, soil-organic-carbon accounting, and spatial statistics on areal data. Each is **forged from a knowledge wiki** built out of **79 peer-reviewed papers** — so the guidance tracks the literature, not guesswork. Install once, use in any project, carry it across machines.
 
 Distributed as a **Claude Code plugin** (`dsm-soil`) via this repo, which doubles as a **plugin marketplace**.
 
@@ -31,21 +31,22 @@ than papering over it.
 | **Saturation-aware and hybrid SOC modelling** | RothC limitations are made explicit and paired with a process-model + ML research direction, including possible saturation constraints | Research direction documented in [`rothc-temporal-modelling`](./plugins/dsm-soil/skills/rothc-temporal-modelling/SKILL.md) and [`hybrid-process-ml-soc`](./plugins/dsm-soil/skills/hybrid-process-ml-soc/SKILL.md); not claimed as a solved production method |
 
 **Scope of these claims.** They describe what the built skills encode, traced to a curated corpus of
-60+ papers. The wiki and the papers themselves are the source of truth and are not distributed here.
+79 papers. The wiki and the papers themselves are the source of truth and are not distributed here.
 This is a claim about *that* corpus — not an independent systematic review of the field.
 
 ## How the skills connect
 
-From raw literature to installable skills — and how the eleven relate:
+From raw literature to installable skills — and how the twelve relate:
 
 ```mermaid
 flowchart TD
-    LIT["60+ papers<br/>soil-science literature"] --> WIKI["Obsidian knowledge wiki<br/>(source of truth)"]
+    LIT["79 papers<br/>soil-science literature"] --> WIKI["Obsidian knowledge wiki<br/>(source of truth)"]
     WIKI --> DSM["digital-soil-mapping-workflow"]
 
     subgraph OP["Operational DSM"]
         DSM --> SAMP["soil-sampling-design"]
         DSM --> ML["ml-for-soil-prediction"]
+        ML --> ENS["ensemble-ml-for-soil"]
         DSM --> VAL["soil-map-validation"]
         DSM --> UNC["spatial-prediction-uncertainty"]
         DSM --> FERT["soil-fertility-mapping"]
@@ -69,7 +70,7 @@ flowchart TD
     SQI -.-> FERT
 ```
 
-## The skills (11)
+## The skills (12)
 
 **🗺️ Operational DSM** — end-to-end mapping, from sampling to a finished map with uncertainty:
 
@@ -78,6 +79,7 @@ flowchart TD
 | `digital-soil-mapping-workflow` | End-to-end DSM project workflow (scorpan → sampling → model → mapped uncertainty) |
 | `soil-sampling-design` | Choose a sampling design by objective (cLHS-family, maxvol, DL, Reference Area, cost, space-time) + runnable R toolkits (`soilsampling`, `MLSampling`) |
 | `ml-for-soil-prediction` | Choose/tune/validate ML for soil (no universal winner; feature engineering; interpretability) |
+| `ensemble-ml-for-soil` | **Whether to combine models at all**, and how — measure the available gain first (ambiguity ceiling), then the weighting spectrum (simple · R²-weighted · Bates–Granger · NNLS · Granger–Ramanathan · voting · per-pixel selection) with every combiner **cross-fitted**. Ships an executed honest ranking, four free review heuristics, and the accuracy-vs-uncertainty objective split |
 | `soil-map-validation` | CV strategy, accuracy metrics, honest uncertainty, aggregation |
 | `spatial-prediction-uncertainty` | Per-pixel intervals + area-of-applicability (AOA/LPD/DI) via CAST; Monte-Carlo to class |
 | `soil-fertility-mapping` | Multi-property fertility maps → Soil Fertility Index with two-axis uncertainty; runnable SQI (`soilquality`: PCA + network MDS, functional grouping, AHP / loading / centrality weights, linear-sigmoid-optimum-reference scoring, weighted or area aggregation, validation) |
@@ -103,6 +105,8 @@ flowchart TD
 | `spatial-statistics-areal` | Moran's I, LISA/BiLISA hot spots and outliers, Lee's L, spatial-weights robustness, Rao's-score (ex-LM) diagnostics, and SLX/SAR/SEM/SDM/SDEM with direct/indirect/total impacts — **R (`spdep`/`spatialreg`) and Python (`libpysal`/`esda`/`spreg`)**, both pipelines execution-verified and cross-checked |
 
 > `soil-quality-index` is built on a full-factorial comparison of the SQI recipe (24 indices from one dataset), so it ranks which choices actually matter — and it carries the traps that cost real projects, including the measured collapse from R² 0.90 to 0.23 when an index is computed from predicted properties instead of predicted directly.
+
+> `ensemble-ml-for-soil` is the one skill whose central rule was settled by **running an experiment**, not by reading: its weighting ranking was measured by cross-fitting every combiner on a real soil dataset (R 4.5.3 + mlr3), which is how it can tell you that an unconstrained combiner scoring best in-sample lands **below doing nothing** when scored honestly. It also carries the sample-size threshold — roughly **20 points per free parameter** — confirmed from two independent directions.
 
 > Several skills go beyond guidance to **runnable R toolkits** — the open-source [`soilsampling`](https://github.com/ccarbajal16/soilsampling), [`MLSampling`](https://github.com/ccarbajal16/MLSampling), and [`soilquality`](https://github.com/ccarbajal16/soilquality) packages — so a design or index becomes concrete, reproducible code. `soil-quality-index` is the closest coupling of the three: the routes it recommends are implemented in `soilquality`, which carries a **regression baseline pinned against a golden output**, 23 test files, four vignettes and a green `R CMD check` — and the skill names the package's three defaults that are *not* the published rule, so a result computed with it can be quoted safely. `spatial-statistics-areal` ships an end-to-end `spdep`/`spatialreg` pipeline that was **checked by execution**, a parallel PySAL pipeline verified the same way, an R↔Python equivalence table, and a table of API traps that silently break real scripts.
 
@@ -250,7 +254,7 @@ soil-dsm-skills/
 ├── .claude-plugin/marketplace.json     # marketplace manifest (lists the plugin)
 ├── plugins/dsm-soil/
 │   ├── .claude-plugin/plugin.json      # plugin manifest
-│   └── skills/<name>/SKILL.md          # the 11 self-contained skills (built)
+│   └── skills/<name>/SKILL.md          # the 12 self-contained skills (built)
 ├── build.ps1 / build.sh                # compile skills from the vault (Windows / Unix)
 ├── release.ps1                         # one-command: build + guard + bump + commit + push + tag + release
 ├── install.ps1 / install.sh            # manual install fallback
