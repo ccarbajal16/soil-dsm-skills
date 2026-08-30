@@ -28,8 +28,8 @@ ensemble-gain-vs-evaluation-basis, compositional-data.
 
 **Execution-verified.** Every number in this skill was measured, not cited. The pipeline below ran
 against **R 4.5.3 + mlr3** on a real soil dataset (n = 204, pH, spatial block CV); scripts live at
-`comparisons/honest_ensemble_recompute.R` and `comparisons/gr_honest_evaluation.R`, with their
-console output beside them.
+`comparisons/honest_ensemble_recompute.R`, `comparisons/gr_honest_evaluation.R` and
+`comparisons/ridge_combiner_test.R`, with their console output beside them.
 
 **Scope boundary.** This skill is about **combining models** — deciding whether to, and how. It is
 not about choosing or tuning one model (ml-for-soil-prediction),
@@ -153,7 +153,7 @@ ignoring the bad members.
 | ⭐ **Bates–Granger (full Σ)** | `w = Σ⁻¹1 / 1ᵀΣ⁻¹1` | **yes** | L−1 |
 | AIC / BIC | `wᵢ ∝ exp(−Iᵢ/2)` | **no** | 0 |
 | ⭐ **NNLS / SuperLearner** | constrained LS, `wᵢ ≥ 0`, `Σwᵢ = 1` | yes | L−1, non-negative |
-| Ridge meta-learner | penalised LS — shrinks rather than constrains | yes | L+1, shrunk |
+| Ridge meta-learner | penalised LS — shrinks rather than constrains | yes | L+1, shrunk ⚠️ **behaves as GR** |
 | Granger–Ramanathan | unconstrained OLS + intercept | yes | **L+1, free sign** |
 | Learned meta-model | Ridge / SVR / GBM | yes, nonlinearly | many |
 | Attention | weights as a **function of the input** | yes, nonlinearly | many |
@@ -202,6 +202,7 @@ observations that judge it. Gains against the best single learner (RF, out-of-fo
 | R²-weighted | +0.8% | −0.4% | 1.1 pp | 0.8 pp |
 | ⭐ **Bates–Granger (full Σ)** | +5.1% | **+2.1%** | 3.0 pp | 1.2 pp |
 | **NNLS (constrained)** | +3.1% | **+1.1%** | 2.0 pp | 0.8 pp |
+| Ridge (CV λ) | +5.1% | **−0.9%** | 6.0 pp | 2.8 pp |
 | Granger–Ramanathan | +5.1% | **−0.9%** | **6.0 pp** | **3.1 pp** |
 
 Read the first and last rows together. The **simple average fits nothing, so it has exactly zero
@@ -212,6 +213,17 @@ combiner when honest.
 ⭐ **And the constraint buys spatial transferability, not just safety.** Last column: the price of
 being asked to work where nothing contributed to the fit is **3.1 pp for GR against 0.8 pp for NNLS**.
 A combiner fitted in one place has to work in another — that is what a map is.
+
+⭐⭐ **Shrinkage is not a substitute for the constraint.** Ridge — a penalised fit, with λ chosen by
+inner CV inside the fitting rows only — lands **exactly on Granger–Ramanathan**, not between GR and
+NNLS as you would expect. The reason is the useful part: CV picked λ ≈ 0.25, leaving an **effective
+df of 3.95 out of ~4** — almost no shrinkage — because **it tunes λ against error inside the fitting
+set, where the unpenalised fit is already optimal.** CV cannot see a failure that only appears in a
+region no fitting point occupied.
+
+> **It is not the *amount* of restriction that matters, but the *kind*: a structural constraint that
+> encodes what a combination is — convex weights — beats a magnitude penalty tuned on in-sample
+> error.**
 
 **Recommendation: full Bates–Granger, then NNLS. Never a bare `lm()`.**
 
